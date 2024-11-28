@@ -2,6 +2,7 @@ package com.example.conversaomoedas.conversion_page
 
 import android.content.res.Resources
 import android.util.Log
+import android.widget.Button
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.conversaomoedas.classes.CurrencyApi
@@ -13,6 +14,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 
 class ConversionPageViewModel: ViewModel() {
@@ -38,11 +40,13 @@ class ConversionPageViewModel: ViewModel() {
         this.resources = resources
     }
 
-    fun convertValues(): Disposable? {
+    fun convertValues(button: Button): Disposable? {
 
         val initialCurrencyObservable = getApiSingle(initialCurrency.getCode(resources))
             .subscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
+            .delay(10, TimeUnit.SECONDS)
+        // DELAY APLICADO DE 30 SEGUNDOS PARA DETECTAR O MEMORY LEAK
 
         val finalCurrencyObservable = getApiSingle(finalCurrency.getCode(resources))
             .subscribeOn(Schedulers.io())
@@ -59,6 +63,9 @@ class ConversionPageViewModel: ViewModel() {
 
             isLoading.postValue(false)
             conversionSuccess.postValue(true)
+
+            // LEVEI O BOTÃO DA ATIVIDADE PARA A SUBSCRIBE DO RX, ASSIM OCORRERÁ MEMORY LEAK
+            button.text = "enfim oi"
 
             Log.e("RX_DEBUG (ON SUCCESS)", "disposable is disposed: ${disposable?.isDisposed}, disposable location: ${System.identityHashCode(disposable)}")
 
@@ -79,7 +86,7 @@ class ConversionPageViewModel: ViewModel() {
 
         convertedValue *= initialCurrency.valueToReal
         finalValue = convertedValue / finalCurrency.valueToReal
-        disposable?.dispose()
+        //disposable?.dispose()
 
     }
 

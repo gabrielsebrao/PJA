@@ -53,25 +53,6 @@ class ConversionPageActivity : ComponentActivity() {
         setupListeners()
 
     }
-
-    override fun onResume() {
-
-        super.onResume()
-
-        if(conversionPageViewModel.isLoading.value == true)
-            disposable = conversionPageViewModel.convertValues()
-
-    }
-
-    override fun onPause() {
-
-        super.onPause()
-
-        if(disposable?.isDisposed == false)
-            disposable?.dispose()
-
-    }
-
     private fun getExtras() {
 
         val bundle = intent.getBundleExtra(resources.getString(R.string.bundle)) ?: return
@@ -133,6 +114,8 @@ class ConversionPageActivity : ComponentActivity() {
 
         }
 
+        conversionPageViewModel.convertValues(binding.returnButton)
+
     }
 
     private fun setupCurrencyView(currencyCode: String, flag: ImageView, textView: TextView, value: Double) {
@@ -176,10 +159,8 @@ class ConversionPageActivity : ComponentActivity() {
 
         binding.returnButton.setOnClickListener {
 
-            if(conversionPageViewModel.isLoading.value == true)
-                return@setOnClickListener
-
-            goToMainActivity()
+            // DESTROI ATIVIDADE AO CLICAR NO BOTÃO
+            finish()
 
         }
 
